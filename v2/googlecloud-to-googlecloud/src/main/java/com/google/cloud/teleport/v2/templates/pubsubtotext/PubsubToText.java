@@ -164,7 +164,7 @@ public class PubsubToText {
         order = 7,
         groupName = "Target",
         optional = true,
-        description = "Include attributes in pull",
+        description = "Optionally include attributes in pubsub pull",
         helpText = "If specified, pull the message and the attributes from the topic or subscription",
         example = "True,False"
     )
