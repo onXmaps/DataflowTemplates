@@ -10,23 +10,37 @@ steps:
     args: [
       "mvn clean package -PtemplatesRun" 
       "-DskipTests" 
-      "-DprojectId=$PROJECT"
+      "-DprojectId=${_TARGET_PROJECT_ID}"
       "-DbucketName=${_TEMPLATE_BUCKET}"
       "-Dregion=us-central1"
       "-DjobName=cloud-pubsub-to-gcs-text-flex-job" 
       "-DtemplateName=Cloud_PubSub_to_GCS_Text_Flex_w_attrs" 
-      "-Dparameters=inputTopic={$_INPUT_TOPIC},inputSubscription={$_INPUT_SUBSCRIPTION},outputDirectory=${_OUTPUT_DIRECTORY},userTempLocation=${_USER_TEMP_LOCATION},outputFilenamePrefix=${_OUTPUT_FILENAME_PREFIX}"
+      "-Dparameters=inputTopic={$_INPUT_TOPIC},inputSubscription={$_INPUT_SUBSCRIPTION},outputDirectory=${_OUTPUT_DIRECTORY},userTempLocation=${_USER_TEMP_LOCATION},outputFilenamePrefix=${_OUTPUT_FILENAME_PREFIX},outputShardTemplate=${_OUTPUT_SHARD_TEMPLATE},numShards=${_NUM_SHARDS},windowDuration=${_WINDOW_DURATION},yearPattern=${_YEAR_PATTERN},monthPattern=${_MONTH_PATTERN},dayPattern=${_DAY_PATTERN},hourPattern=${_HOUR_PATTERN},minutePattern=${_MINUTE_PATTERN}"
       "-f v2/googlecloud-to-googlecloud"
       ]
 
 timeout: 1200s
 
 substitutions:
+  ### Required
+  _OUTPUT_DIRECTORY: gs://analytics_events_warehouse/errors_w_attrs
+
+  ### Optional
+  _INPUT_TOPIC: dataflow-failure
+  _INPUT_SUBSCRIPTION: failed_dataflow_transformation_develop
+  _USER_TEMP_LOCATION: gs://dataflow-staging-us-central1-739390938599/tmp
+  _OUTPUT_FILENAME_PREFIX: error
+  _OUTPUT_FILENAME_SUFFIX: ""
+  _OUTPUT_SHARD_TEMPLATE: W-P-SS-of-NN
+  _NUM_SHARDS: 0
+  _WINDOW_DURATION: 5m
+  _YEAR_PATTERN: YYYY
+  _MONTH_PATTERN: MM
+  _DAY_PATTERN: dd
+  _HOUR_PATTERN: HH
+  _MINUTE_PATTERN: mm
+
   _TARGET_PROJECT_ID: onx-dw-raw
   _TEMPLATE_BUCKET: gs://onx-flex-templates
-  _TEMPLATE_PATH: /templates/dev/${_PR_NUMBER}/onx_dw_beam_pipelines.json
-  _TEMPLATE_IMAGE: us-central1-docker.pkg.dev/${_TARGET_PROJECT_ID}/onx-dw-beam-pipelines/dev/flex:${_PR_NUMBER}
-  _SDK_IMAGE: us-central1-docker.pkg.dev/${_TARGET_PROJECT_ID}/onx-dw-beam-pipelines/dev/sdk:${_PR_NUMBER}
-  _CORE_IMAGE: us-central1-docker.pkg.dev/${_TARGET_PROJECT_ID}/onx-dw-beam-pipelines/dev/core:${_PR_NUMBER}
 options:
     dynamic_substitutions: true
