@@ -6,7 +6,7 @@ steps:
 
   - id: "update flex-template"
     waitFor: ['-']
-    name: "gcr.io/cloud-builders/gcloud"
+    name: "gcr.io/cloud-builders/mvn"
     args: [
       "mvn clean package -PtemplatesRun", 
       "-DskipTests",
