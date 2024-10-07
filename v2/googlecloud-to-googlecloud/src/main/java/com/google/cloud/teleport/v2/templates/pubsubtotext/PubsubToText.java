@@ -57,238 +57,237 @@ import org.apache.beam.sdk.values.TypeDescriptor;
     category = TemplateCategory.STREAMING,
     displayName = "Pub/Sub Subscription or Topic to Text Files on Cloud Storage",
     description =
-    "The Pub/Sub Topic or Subscription to Cloud Storage Text template is a streaming pipeline that reads records " +
-    "from Pub/Sub and saves them as a series of Cloud Storage files in text format. The template can be used as a quick way to save data in Pub/Sub for future use. By default, the template generates a new file every 5 minutes.",
+        "The Pub/Sub Topic or Subscription to Cloud Storage Text template is a streaming pipeline that reads records "
+            + "from Pub/Sub and saves them as a series of Cloud Storage files in text format. The template can be used as a quick way to save data in Pub/Sub for future use. By default, the template generates a new file every 5 minutes.",
     optionsClass = Options.class,
     flexContainerName = "pubsub-to-text",
     documentation =
-    "https://cloud.google.com/dataflow/docs/guides/templates/provided/pubsub-topic-subscription-to-text",
+        "https://cloud.google.com/dataflow/docs/guides/templates/provided/pubsub-topic-subscription-to-text",
     contactInformation = "https://cloud.google.com/support",
     requirements = {
-        "The Pub/Sub topic or subscription must exist prior to execution.",
-        "The messages published to the topic must be in text format.",
-        "The messages published to the topic must not contain any newlines. Note that each Pub/Sub message is saved as a single line in the output file."
+      "The Pub/Sub topic or subscription must exist prior to execution.",
+      "The messages published to the topic must be in text format.",
+      "The messages published to the topic must not contain any newlines. Note that each Pub/Sub message is saved as a single line in the output file."
     },
     streaming = true,
     supportsAtLeastOnce = true)
 
 public class PubsubToText {
 
-    /**
-     * Options supported by the pipeline.
-     *
-     * <p>Inherits standard configuration options.
-     */
+  /**
+   * Options supported by the pipeline.
+   *
+   * <p>Inherits standard configuration options.
+   */
 
-    public interface Options
-    extends PipelineOptions, StreamingOptions, WindowedFilenamePolicyOptions {
+  public interface Options
+      extends PipelineOptions, StreamingOptions, WindowedFilenamePolicyOptions {
 
-        @TemplateParameter.PubsubTopic(
-            order = 1,
-            groupName = "Source",
-            optional = true,
-            description = "Pub/Sub input topic",
-            helpText =
-            "The Pub/Sub topic to read the input from. The topic name should be in the format " +
-            "`projects/<PROJECT_ID>/topics/<TOPIC_NAME>`. If this parameter is provided " +
-            "don't use `inputSubscription`.",
-            example = "projects/your-project-id/topics/your-topic-name")
-        String getInputTopic();
+    @TemplateParameter.PubsubTopic(
+        order = 1,
+        groupName = "Source",
+        optional = true,
+        description = "Pub/Sub input topic",
+        helpText =
+            "The Pub/Sub topic to read the input from. The topic name should be in the format "
+                + "`projects/<PROJECT_ID>/topics/<TOPIC_NAME>`. If this parameter is provided "
+                + "don't use `inputSubscription`.",
+        example = "projects/your-project-id/topics/your-topic-name")
+    String getInputTopic();
 
-        void setInputTopic(String value);
+    void setInputTopic(String value);
 
-        @TemplateParameter.PubsubSubscription(
-            order = 2,
-            groupName = "Source",
-            optional = true,
-            description = "Pub/Sub input subscription",
-            helpText =
-            "The Pub/Sub subscription to read the input from. The subscription name uses the format " +
-            "`projects/<PROJECT_ID>/subscription/<SUBSCRIPTION_NAME>`. If this parameter is " +
-            "provided, don't use `inputTopic`.",
-            example = "projects/your-project-id/subscriptions/your-subscription-name")
-        String getInputSubscription();
+    @TemplateParameter.PubsubSubscription(
+        order = 2,
+        groupName = "Source",
+        optional = true,
+        description = "Pub/Sub input subscription",
+        helpText =
+            "The Pub/Sub subscription to read the input from. The subscription name uses the format "
+                + "`projects/<PROJECT_ID>/subscription/<SUBSCRIPTION_NAME>`. If this parameter is "
+                + "provided, don't use `inputTopic`.",
+        example = "projects/your-project-id/subscriptions/your-subscription-name")
+    String getInputSubscription();
 
-        void setInputSubscription(String value);
+    void setInputSubscription(String value);
 
-        @TemplateParameter.GcsWriteFolder(
-            order = 3,
-            groupName = "Target",
-            description = "Output file directory in Cloud Storage",
-            helpText =
-            "The path and filename prefix to write write output files to. " +
-            "This value must end in a slash.",
-            example = "gs://your-bucket/your-path")
-        @Required
-        String getOutputDirectory();
+    @TemplateParameter.GcsWriteFolder(
+        order = 3,
+        groupName = "Target",
+        description = "Output file directory in Cloud Storage",
+        helpText =
+            "The path and filename prefix to write write output files to. "
+                + "This value must end in a slash.",
+        example = "gs://your-bucket/your-path")
+    @Required
+    String getOutputDirectory();
 
-        void setOutputDirectory(String value);
+    void setOutputDirectory(String value);
 
-        @TemplateParameter.GcsWriteFolder(
-            order = 4,
-            optional = true,
-            description = "User provided temp location",
-            helpText =
+    @TemplateParameter.GcsWriteFolder(
+        order = 4,
+        optional = true,
+        description = "User provided temp location",
+        helpText =
             "The user provided directory to output temporary files to. Must end with a slash.")
-        String getUserTempLocation();
+    String getUserTempLocation();
 
-        void setUserTempLocation(String value);
+    void setUserTempLocation(String value);
 
-        @TemplateParameter.Text(
-            order = 5,
-            groupName = "Target",
-            optional = true,
-            description = "Output filename prefix of the files to write",
-            helpText = "The prefix to place on each windowed file.",
-            example = "output-")
-        @Default.String("output")
-        @Required
-        String getOutputFilenamePrefix();
+    @TemplateParameter.Text(
+        order = 5,
+        groupName = "Target",
+        optional = true,
+        description = "Output filename prefix of the files to write",
+        helpText = "The prefix to place on each windowed file.",
+        example = "output-")
+    @Default.String("output")
+    @Required
+    String getOutputFilenamePrefix();
 
-        void setOutputFilenamePrefix(String value);
+    void setOutputFilenamePrefix(String value);
 
-        @TemplateParameter.Text(
-            order = 6,
-            groupName = "Target",
-            optional = true,
-            description = "Output filename suffix of the files to write",
-            helpText =
+    @TemplateParameter.Text(
+        order = 6,
+        groupName = "Target",
+        optional = true,
+        description = "Output filename suffix of the files to write",
+        helpText =
             "The suffix to place on each windowed file, typically a file extension such as `.txt` or `.csv`.",
-            example = ".txt")
-        @Default.String("")
-        String getOutputFilenameSuffix();
+        example = ".txt")
+    @Default.String("")
+    String getOutputFilenameSuffix();
 
-        void setOutputFilenameSuffix(String value);
+    void setOutputFilenameSuffix(String value);
 
-        @TemplateParameter.Text(
-            order = 7,
-            groupName = "Target",
-            optional = true,
-            description = "Optionally include attributes in pubsub pull",
-            helpText = "If specified, pull the message and the attributes from the topic or subscription",
-            example = "True,False"
-        )
-        String getAttributeFlag();
+    @TemplateParameter.Text(
+        order = 7,
+        groupName = "Target",
+        optional = true,
+        description = "Optionally include attributes in pubsub pull",
+        helpText = "If specified, pull the message and the attributes from the topic or subscription",
+        example = "True,False"
+    )
+    String getAttributeFlag();
 
-        void setAttributeFlag(String value);
+    void setAttributeFlag(String value);
+  }
+
+  /**
+   * Main entry point for executing the pipeline.
+   *
+   * @param args The command-line arguments to the pipeline.
+   */
+  public static void main(String[] args) {
+    UncaughtExceptionLogger.register();
+
+    Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
+
+    options.setStreaming(true);
+
+    run(options);
+  }
+
+  /**
+   * Runs the pipeline with the supplied options.
+   *
+   * @param options The execution parameters to the pipeline.
+   * @return The result of the pipeline execution.
+   */
+  public static PipelineResult run(Options options) {
+    boolean useInputSubscription = !Strings.isNullOrEmpty(options.getInputSubscription());
+    boolean pullAttributes = !Strings.isNullOrEmpty(options.getAttributeFlag());
+
+    boolean useInputTopic = !Strings.isNullOrEmpty(options.getInputTopic());
+    if (useInputSubscription == useInputTopic) {
+      throw new IllegalArgumentException(
+          "Either input topic or input subscription must be provided, but not both.");
     }
 
-    /**
-     * Main entry point for executing the pipeline.
-     *
-     * @param args The command-line arguments to the pipeline.
+    // Create the pipeline
+    Pipeline pipeline = Pipeline.create(options);
+
+    PCollection<String> messages = null;
+
+    /*  
+     * Steps:
+     *   1) Read string messages from PubSub
+     *   2) Window the messages into minute intervals specified by the executor.
+     *   3) Output the windowed files to GCS
      */
-    public static void main(String[] args) {
-        UncaughtExceptionLogger.register();
 
-        Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
-
-        options.setStreaming(true);
-
-        run(options);
-    }
-
-    /**
-     * Runs the pipeline with the supplied options.
-     *
-     * @param options The execution parameters to the pipeline.
-     * @return The result of the pipeline execution.
-     */
-    public static PipelineResult run(Options options) {
-        boolean useInputSubscription = !Strings.isNullOrEmpty(options.getInputSubscription());
-        boolean pullAttributes = !Strings.isNullOrEmpty(options.getAttributeFlag());
-
-        boolean useInputTopic = !Strings.isNullOrEmpty(options.getInputTopic());
-        if (useInputSubscription == useInputTopic) {
-            throw new IllegalArgumentException(
-                "Either input topic or input subscription must be provided, but not both.");
-        }
-
-        // Create the pipeline
-        Pipeline pipeline = Pipeline.create(options);
-
-        PCollection < String > messages = null;
-
-        /*  
-         * Steps:
-         *   1) Read string messages from PubSub
-         *   2) Window the messages into minute intervals specified by the executor.
-         *   3) Output the windowed files to GCS
-         */
-
-        if (useInputSubscription) {
-            if (pullAttributes) {
-                PCollection < PubsubMessage > messagesAttr = pipeline.apply(
-                    "Read PubSub Events",
-                    PubsubIO.readMessagesWithAttributes().fromSubscription(options.getInputSubscription()));
-                messages = messagesAttr.apply(
-                    "ExtractPayloadAndAttributesToString", MapElements.into(TypeDescriptor.of(String.class))
-                    .via((PubsubMessage message) - > {
-                        // Get the message payload as a string
-                        String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
-                        // Get the message attributes and convert them to a JSON-like string format
-                        Map < String,
-                        String > attributes = message.getAttributeMap();
-                        String attributesString = attributes.entrySet()
+    if (useInputSubscription) {
+        if (pullAttributes){
+            PCollection<PubsubMessage> messagesAttr = pipeline.apply(
+                "Read PubSub Events",
+                PubsubIO.readMessagesWithAttributes().fromSubscription(options.getInputSubscription()));
+            messages = messagesAttr.apply(
+                "ExtractPayloadAndAttributesToString", MapElements.into(TypeDescriptor.of(String.class))
+                .via((PubsubMessage message) -> {
+                    // Get the message payload as a string
+                    String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
+                    // Get the message attributes and convert them to a JSON-like string format
+                    Map<String, String> attributes = message.getAttributeMap();
+                    String attributesString = attributes.entrySet()
                         .stream()
-                        .map(entry - > "\"" + entry.getKey() + "\": \"" + entry.getValue() + "\"")
+                        .map(entry -> "\"" + entry.getKey() + "\": \"" + entry.getValue() + "\"")
                         .collect(Collectors.joining(", ", "{", "}"));
 
-                        // Return the concatenated string with both the payload and attributes
-                        return "{ \"payload\": \"" + payload + "\", \"attributes\": " + attributesString + " }";
-                    })
-                );
-            } else {
-                messages =
-                    pipeline.apply(
-                        "Read PubSub Events",
-                        PubsubIO.readStrings().fromSubscription(options.getInputSubscription()));
-            }
-        } else {
+                    // Return the concatenated string with both the payload and attributes
+                    return "{ \"payload\": \"" + payload + "\", \"attributes\": " + attributesString + " }";
+                })
+        );
+      }else{
             messages =
                 pipeline.apply(
-                    "Read PubSub Events", PubsubIO.readStrings().fromTopic(options.getInputTopic()));
+                    "Read PubSub Events",
+                    PubsubIO.readStrings().fromSubscription(options.getInputSubscription()));
         }
-        messages
-            .apply(
-                options.getWindowDuration() + " Window",
-                Window.into(FixedWindows.of(DurationUtils.parseDuration(options.getWindowDuration()))))
+    } else {
+      messages =
+          pipeline.apply(
+              "Read PubSub Events", PubsubIO.readStrings().fromTopic(options.getInputTopic()));
+    }
+    messages
+        .apply(
+            options.getWindowDuration() + " Window",
+            Window.into(FixedWindows.of(DurationUtils.parseDuration(options.getWindowDuration()))))
 
-            // Apply windowed file writes
-            .apply(
-                "Write File(s)",
-                TextIO.write()
+        // Apply windowed file writes
+        .apply(
+            "Write File(s)",
+            TextIO.write()
                 .withWindowedWrites()
                 .withNumShards(options.getNumShards())
                 .to(
                     WindowedFilenamePolicy.writeWindowedFiles()
-                    .withOutputDirectory(options.getOutputDirectory())
-                    .withOutputFilenamePrefix(options.getOutputFilenamePrefix())
-                    .withShardTemplate(options.getOutputShardTemplate())
-                    .withSuffix(options.getOutputFilenameSuffix())
-                    .withYearPattern(options.getYearPattern())
-                    .withMonthPattern(options.getMonthPattern())
-                    .withDayPattern(options.getDayPattern())
-                    .withHourPattern(options.getHourPattern())
-                    .withMinutePattern(options.getMinutePattern()))
+                        .withOutputDirectory(options.getOutputDirectory())
+                        .withOutputFilenamePrefix(options.getOutputFilenamePrefix())
+                        .withShardTemplate(options.getOutputShardTemplate())
+                        .withSuffix(options.getOutputFilenameSuffix())
+                        .withYearPattern(options.getYearPattern())
+                        .withMonthPattern(options.getMonthPattern())
+                        .withDayPattern(options.getDayPattern())
+                        .withHourPattern(options.getHourPattern())
+                        .withMinutePattern(options.getMinutePattern()))
                 .withTempDirectory(
                     FileBasedSink.convertToFileResourceIfPossible(
                         maybeUseUserTempLocation(
                             options.getUserTempLocation(), options.getOutputDirectory()))));
 
-        // Execute the pipeline and return the result.
-        return pipeline.run();
-    }
+    // Execute the pipeline and return the result.
+    return pipeline.run();
+  }
 
-    /**
-     * Utility method for using optional parameter userTempLocation as TempDirectory. This is useful
-     * when output bucket is locked and temporary data cannot be deleted.
-     *
-     * @param userTempLocation user provided temp location
-     * @param outputLocation user provided outputDirectory to be used as the default temp location
-     * @return userTempLocation if available, otherwise outputLocation is returned.
-     */
-    private static String maybeUseUserTempLocation(String userTempLocation, String outputLocation) {
-        return !Strings.isNullOrEmpty(userTempLocation) ? userTempLocation : outputLocation;
-    }
+  /**
+   * Utility method for using optional parameter userTempLocation as TempDirectory. This is useful
+   * when output bucket is locked and temporary data cannot be deleted.
+   *
+   * @param userTempLocation user provided temp location
+   * @param outputLocation user provided outputDirectory to be used as the default temp location
+   * @return userTempLocation if available, otherwise outputLocation is returned.
+   */
+  private static String maybeUseUserTempLocation(String userTempLocation, String outputLocation) {
+    return !Strings.isNullOrEmpty(userTempLocation) ? userTempLocation : outputLocation;
+  }
 }
